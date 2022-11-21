@@ -71,7 +71,10 @@ func (dialector Dialector) Initialize(db *gorm.DB) (err error) {
 		if len(result) > 2 {
 			config.RuntimeParams["timezone"] = result[2]
 		}
-		db.ConnPool = stdlib.OpenDB(*config)
+		db.ConnPool = stdlib.OpenDB(*config,stdlib.OptionResetSession(func(ctx context.Context, conn *pgx.Conn) error {
+			conn.Ping(context.Background())
+			return nil
+		}))
 	}
 	return
 }
